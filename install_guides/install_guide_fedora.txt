@@ -1,0 +1,51 @@
+#####################################
+###### GUÍA INSTALACIÓN FEDORA ######
+#####################################
+
+Este documento es una guía de instalación y configuración de Dockers para las prácticas de laboratorio de TCGI.
+
+--------------------------------------------------------------------------
+
+Requerimientos:
+- Instalación de sudo
+- Instalación de docker
+- Creación de un perfil en gnome-terminal (si es el emulador de terminal que se quiere usar)
+
+####### INSTALACIÓN DE DOCKER #######
+Si no tienes instalado DOCKER aún:
+
+sudo apt update
+sudo apt upgrade
+# Desinstalar versiones previas
+sudo dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine
+# Instalar requisitos previos
+sudo dnf -y install dnf-plugins-core
+# Agregar repositorios de Docker
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+# Instalar Docker
+sudo dnf install docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
+# Puedes comprobar el estado de Docker
+sudo systemctl status docker
+
+### CREACIÓN DE UN PERFIL EN GNOME-TERMINAL ###
+Para crear un perfil con gnome-terminal se debe hacer manualmente. En la pestaña superior con el emulador abierto.
+/preferencias/perfiles/+
+Recordar que se debe crear con el nombre 'tcgi' ya que será el nombre que se usará al llamar: gnome-terminal --profile tcgi ..... desde el comando simctl
+Nota: De esta forma se está creando un perfil para un usr.
+      Si se usa el comando simctl con sudo, se cogerá de entre los perfiles de root (y por lo tanto no lo encontrará, usando por lo tanto el perfil predeterminado.
+
+--------------------------------------------------------------------------
+
+Instalación de la imagen simctl y configuración:
+#Aquí se deberá cambiar git clone por el servidor de la upc
+
+Una vez descargado y dentro de la carpeta...
+# Copiar el script de instalación y dar permisos de ejecución
+sudo cp simctl_install /usr/local/bin/
+sudo chmod +x /usr/local/bin/simctl_install
+# Antes de ejecutar el script de instalación, asegurarse que hay conexión a internet y batería suficiente ya que puede tardar bastante.
+simctl_install
+# Una vez haya terminado la instalación, se puede comprobar ejecutando...
+simctl
+# ...que devolverá la consola de comandos dentro del contenedor.
