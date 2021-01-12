@@ -1,15 +1,24 @@
 #!/bin/bash
+
+install_guide_path="./install_guide"
+
 #Comprobar si se ha descomprimido con anterioridad debian5.fs
+check=`ls www/ | grep -x debian5.fs.tar.xz.partaa`
+if [ -z "$check" ]; then
+	echo "Joining the image file..."
+	cat www/debian5.fs.tar.xz.parta* > www/debian5.fs.tar.xz && rm -f www/debian5.fs.tar.xz.parta* &> /dev/null
+fi
+
 check=`ls www/ | grep -x debian5.fs`
 if [ -z "$check" ]; then
-	echo "We are working on it..."
+	echo "Uncompressing the image file..."
 	cat www/debian5.fs.tar.xz.parta* > www/debian5.fs.tar.xz && rm -f www/debian5.fs.tar.xz.parta* &> /dev/null
 	tar xJf www/debian5.fs.tar.xz debian5.fs && mv debian5.fs www/debian5.fs
 fi
 #Copiar perfil de Konsole si esta instalado
 check=`ls /usr/bin | grep konsole`
 if [ ! -z "$check" ]; then
-	cp guias_instalacion/profiles/tcgi.profile ~/.local/share/konsole/
+	cp $install_guide_path/profiles/tcgi.profile ~/.local/share/konsole/
 fi
 #Construir la imagen tcgi
 sudo docker build -t tcgi .
