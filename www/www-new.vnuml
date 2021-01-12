@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE vnuml SYSTEM "/usr/share/xml/vnuml/vnuml.dtd">
+
+<!-- scenario version 1.3 -->
+
+<vnuml>
+  <global>
+    <version>1.8</version>
+    <simulation_name>www-new</simulation_name>
+    <automac/>
+    <vm_mgmt type="none" />
+    <vm_defaults exec_mode="mconsole">
+       <filesystem type="cow">/usr/share/vnuml/filesystems/root_fs_tutorial</filesystem>
+       <kernel>/usr/share/vnuml/kernels/linux</kernel>
+       <console id="0">pts</console>
+       <console id="1">pts</console>
+    </vm_defaults>
+  </global>
+
+  <net name="Net0" mode="uml_switch" hub="yes" sock="/var/run/vnuml/Net0.ctl" />
+
+  <vm name="www">
+    <if id="0" net="Net0"></if>
+    <filetree root="/tmp" seq="start">files/www/www</filetree>
+    <exec seq="start" type="verbatim">ip a a 10.1.1.1/24 dev eth0</exec>
+    <exec seq="start" type="verbatim">echo -e "search example.com  \nnameserver 10.1.1.10\n" &gt; /etc/resolv.conf</exec> 
+    <exec seq="start" type="verbatim">rmdir /run;ln -s /var/run /run</exec>
+</vm>
+
+  <vm name="www1">
+    <if id="0" net="Net0"></if>
+    <filetree root="/tmp" seq="start">files/www/www</filetree>
+    <exec seq="start" type="verbatim">ip a a 10.1.1.11/24 dev eth0</exec>
+    <exec seq="start" type="verbatim">echo -e "search example.com  \nnameserver 10.1.1.10\n" &gt; /etc/resolv.conf</exec>
+    <exec seq="start" type="verbatim">rmdir /run;ln -s /var/run /run</exec>
+</vm>
+
+  <vm name="www2">
+    <if id="0" net="Net0"></if>
+    <filetree root="/tmp" seq="start">files/www/www</filetree>
+    <exec seq="start" type="verbatim">ip a a 10.1.1.12/24 dev eth0</exec>
+    <exec seq="start" type="verbatim">echo -e "search example.com  \nnameserver 10.1.1.10\n" &gt; /etc/resolv.conf</exec>
+    <exec seq="start" type="verbatim">rmdir /run;ln -s /var/run /run</exec>
+</vm>
+
+  <vm name="server">
+    <if id="0" net="Net0"></if>
+    <exec seq="start" type="verbatim">ip a a 10.1.1.2/24 dev eth0</exec>
+   <exec seq="start" type="verbatim">echo -e "search example.com \nnameserver 10.1.1.10\n" &gt; /etc/resolv.conf</exec>
+    <exec seq="start" type="verbatim">rmdir /run;ln -s /var/run /run</exec>
+</vm>
+
+  <vm name="dns">
+    <if id="0" net="Net0"></if>
+    <filetree root="/etc/bind" seq="start">files/www/dns/bind</filetree>
+    <exec seq="start" type="verbatim">ifconfig eth0 10.1.1.10/24</exec>
+    <exec seq="start" type="verbatim">/etc/init.d/bind9 start</exec>
+    <exec seq="start" type="verbatim">rmdir /run;ln -s /var/run /run</exec>
+</vm>
+
+   <vm name="host">
+    <if id="0" net="Net0"></if>
+   <exec seq="start" type="verbatim">echo -e "search example.com \nnameserver 10.1.1.10\n" &gt; /etc/resolv.conf</exec>
+    <exec seq="start" type="verbatim">ifconfig eth0 10.1.1.3/24</exec>
+    <exec seq="start" type="verbatim">rmdir /run;ln -s /var/run /run</exec>
+</vm>
+
+</vnuml>
+
