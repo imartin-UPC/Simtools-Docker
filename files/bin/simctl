@@ -1,43 +1,38 @@
 #!/bin/bash 
 
-kill_docker="sudo docker stop simctl_tcgi && sudo docker rm simctl_tcgi"
-start_docker="sudo docker start simctl_tcgi"
-run_docker="sudo docker run -d -it --device /dev/net/tun --name=simctl_tcgi --cap-add=NET_ADMIN --network=host --ipc=host tcgi /bin/bash"
+kill_docker="sudo docker stop simtools && sudo docker rm simtools"
+start_docker="sudo docker start simtools"
+run_docker="sudo docker run -d -it --device /dev/net/tun --name=simtools --cap-add=NET_ADMIN --network=host --ipc=host simtools /bin/bash"
 
 #preCommand se usará para construir el comando que se ejecuta en función de los argumentos pasados
 preCommand=""
 
-#sudo simctl restart: se usa para reiniciar el contenedor simctl_tcgi en caso que algo vaya mal
+#sudo simctl restart: se usa para reiniciar el contenedor simtools en caso que algo vaya mal
 #También puede usarse para cambiar de escenario de forma rápida evitando: simctl scenario forcestop que es lento
 if [[ "$1" =~ "restart" ]]; then
 	eval $kill_docker
 	eval $run_docker
 else
 	#Comprobación para saber el estado del contenedor (en caso que no este corriendo se debe hacer un [run])
-	check=`sudo docker ps -a | grep simctl`
+	check=`sudo docker ps -a | grep simtools`
 	if [ -z "$check" ]; then
 		eval $run_docker
 	else
 		#Comprobación para saber el estado del contenedor (en caso que este corriendo pero en estado [exited] se debe hacer un [start])
-		check=`sudo docker ps | grep simctl_tcgi`
+		check=`sudo docker ps | grep simtools`
 		if [ -z "$check" ]; then
 			eval $start_docker
 		fi
 	fi
 
 	#Construcción del comando que se ejecutará. En este punto, el contenedor está corriendo y en funcionamiento por lo que se ejecutará con el comando [exec]
-	preCommand="sudo docker exec -it simctl_tcgi "
+	preCommand="sudo docker exec -it simtools "
 
 	#sudo simctl: En este caso no se pasan parámetros. Se muestran las opciones y los escenarios disponibles y posteriormente se entra en el bash del contenedor
 	#Para salir del terminal del contenedor y volver al terminal del host ejecutar: exit
-	if [ -z "$1" ]; then
-		h="$preCommand simctl"
-		echo "Type exit to return to host"
-		eval $h
-		preCommand+="/bin/bash"
-	#En caso que se pasen argumentos, se ejecutan dentro del contenedor.
-	else
-		preCommand+="simctl "
+	#if [ -z "$1" ]; then
+	preCommand+="simctl "
+	if [[ $# -ne 0 ]]; then
 		preCommand+="$@"
 		#Si el comando requiere conseguir un nuevo terminal, se comprueba si estan instalados gnome-terminal o konsole.
 		if [[ $preCommand == *"get"* ]]; then
@@ -48,13 +43,13 @@ else
 			fi
 			check=`ls /usr/bin | grep konsole`
 			if [ ! -z "$check" ]; then
-				# Usará el perfil tcgi.profile si se encuentra en ~/.local/share/konsole/tcgi.profile y sino usará el perfil default
-				preCommand="konsole --profile tcgi --hold -e '$tmp' &"
+				# Usará el perfil simtools.profile si se encuentra en ~/.local/share/konsole/simtools.profile y sino usará el perfil default
+				preCommand="konsole --profile simtools --hold -e '$tmp' &"
 			fi
 			check=`ls /usr/bin | grep gnome-terminal`
 			if [ ! -z "$check" ]; then
-				# Con gnome-terminal, el usuario debe crear su propio perfil manualmente y nombrarlo tcgi como se explica en la guía de instalación
-				preCommand="gnome-terminal --profile tcgi -- $tmp"
+				# Con gnome-terminal, el usuario debe crear su propio perfil manualmente y nombrarlo simtools como se explica en la guía de instalación
+				preCommand="gnome-terminal --profile simtools -- $tmp"
 			fi
 		fi
 	fi

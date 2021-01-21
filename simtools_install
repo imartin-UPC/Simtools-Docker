@@ -1,0 +1,70 @@
+#!/bin/bash
+
+guides_path="./install_guides"
+files_path="./files"
+bin_path="/usr/local/bin"
+current_path=`pwd`
+
+# Check files 
+echo "Checking the files integrity..."
+
+wrong_files=`cd "$files_path/www" &>/dev/null; md5sum -c checksums.md5 2>/dev/null | grep FAILED | cut -d ':' -f 1; cd "$current_path" &>/dev/null`
+for file in $wrong_files; do
+    rm -f "$files_path/www/$file" &>/dev/null
+done
+
+# Check if debian5.fs file has been unpacked
+check=`ls "$files_path/www/" | grep -x debian5.fs`
+if [ -z "$check" ]; then
+    echo "Unpacking the image file..."
+    
+    check=`ls "$files_path/www/" | grep -x image.tar.xz`
+    if [ -z "$check" ]; then
+        # Join the image files
+        find "$files_path/www" -name image.parta* -print0 | sort -z | xargs -0 -I file cat file > "$files_path/www/image.tar.xz"
+    fi
+
+    # Unpack the image file
+    tar xJf "$files_path/www/image.tar.xz" -C "$files_path/www"
+fi
+
+check=`systemctl status docker | grep running`
+if [ -z "$check" ]; then
+    echo "Starting the docker service..."       
+    sudo systemctl start docker &> /dev/null
+fi
+
+echo "Building the docker image..."
+
+# Building the simtools image
+sudo docker build -t simtools .
+
+echo "Copying required files to the system..."
+
+# Copy the profile in the case konsole is available
+check=`ls /usr/bin | grep konsole`
+if [ ! -z "$check" ]; then
+	mkdir -p ~/.local/share/konsole/ &> /dev/null
+	cp "$files_path/profiles/simtools.profile" ~/.local/share/konsole/ &> /dev/null
+fi
+
+# Copy the binaries (simctl wrapper) to the system and setting the right permissions
+sudo cp -f "$files_path/bin/simctl" "$bin_path/simctl" &> /dev/null
+sudo chmod +x "$bin_path/simctl" &> /dev/null
+
+# Check if there is a container already running and remove it if it is the case. 
+check=`sudo docker ps -a | grep simtools`
+if [ ! -z "$check" ]; then
+	sudo docker stop simtools && sudo docker rm simtools
+fi
+
+# Create and run the container as a daemon. 
+# To run simctl commands type: simctl [options]
+sudo docker run -d -it --device /dev/net/tun --name=simtools --cap-add=NET_ADMIN --network=host --ipc=host simtools /bin/bash
+
+# Copy the command simtools-captap so run several wiresharks in the host at once. 
+sudo docker cp simtools:/usr/local/bin/simtools-captap "$bin_path/simtools-captap"
+sudo chmod +x "$bin_path/simtools-captap"
+sudo docker cp simtools:/usr/local/share/doc/simtools/screenrc.user ~/.screenrc
+
+echo "Done!"
