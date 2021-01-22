@@ -4,37 +4,34 @@ kill_docker="sudo docker stop simtools && sudo docker rm simtools"
 start_docker="sudo docker start simtools"
 run_docker="sudo docker run -d -it --device /dev/net/tun --name=simtools --cap-add=NET_ADMIN --network=host --ipc=host simtools /bin/bash"
 
-#preCommand se usará para construir el comando que se ejecuta en función de los argumentos pasados
+#preCommand is used to build the command to be run
 preCommand=""
 
-#sudo simctl restart: se usa para reiniciar el contenedor simtools en caso que algo vaya mal
-#También puede usarse para cambiar de escenario de forma rápida evitando: simctl scenario forcestop que es lento
+#sudo simctl restart: is used to recreate the container in case something goes wrong 
+# or just as a quick and nasty way to change from one scenario to another
 if [[ "$1" =~ "restart" ]]; then
 	eval $kill_docker
 	eval $run_docker
 else
-	#Comprobación para saber el estado del contenedor (en caso que no este corriendo se debe hacer un [run])
+	# Check if the container has been already created and it's currently running 
 	check=`sudo docker ps -a | grep simtools`
 	if [ -z "$check" ]; then
 		eval $run_docker
 	else
-		#Comprobación para saber el estado del contenedor (en caso que este corriendo pero en estado [exited] se debe hacer un [start])
+		# Check if the container has been previously created but now it is stopped
 		check=`sudo docker ps | grep simtools`
 		if [ -z "$check" ]; then
 			eval $start_docker
 		fi
 	fi
 
-	#Construcción del comando que se ejecutará. En este punto, el contenedor está corriendo y en funcionamiento por lo que se ejecutará con el comando [exec]
-	preCommand="sudo docker exec -it simtools "
+	# Build the docker command prefix 
+	preCommand="sudo docker exec -it simtools simctl "
 
-	#sudo simctl: En este caso no se pasan parámetros. Se muestran las opciones y los escenarios disponibles y posteriormente se entra en el bash del contenedor
-	#Para salir del terminal del contenedor y volver al terminal del host ejecutar: exit
-	#if [ -z "$1" ]; then
-	preCommand+="simctl "
+	# If we have further parameters 
 	if [[ $# -ne 0 ]]; then
 		preCommand+="$@"
-		#Si el comando requiere conseguir un nuevo terminal, se comprueba si estan instalados gnome-terminal o konsole.
+		# If command to be run requires getting a terminal, check for the right one
 		if [[ $preCommand == *"get"* ]]; then
 			tmp="$preCommand"
 			check=`ls /usr/bin | grep xterm`
@@ -53,6 +50,6 @@ else
 			fi
 		fi
 	fi
-	#Ejecutar el comando creado.
+	# Run the command
 	eval $preCommand
 fi
