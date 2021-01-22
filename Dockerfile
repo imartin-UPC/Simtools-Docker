@@ -34,9 +34,9 @@ RUN adduser --disabled-password --gecos '' tcgi && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
     gpasswd -a tcgi vnuml
 
-COPY www/www-new.vnuml /usr/share/vnuml/scenarios/
+COPY files/www/www-new.vnuml /usr/share/vnuml/scenarios/
 RUN chmod 644 /usr/share/vnuml/scenarios/www-new.vnuml
 
-COPY www/debian5.fs /usr/share/vnuml/filesystems/debian5.fs
+COPY files/www/debian5.fs /usr/share/vnuml/filesystems/debian5.fs
 
 USER tcgi
