@@ -31,13 +31,23 @@ fi
 check=`systemctl status docker | grep running`
 if [ -z "$check" ]; then
     echo "Starting the docker service..."       
-    sudo systemctl start docker &> /dev/null
+    sudo systemctl start docker &> /dev/null 
 fi
 
-echo "Building the docker image..."
+# Check if there is a container already running and remove it if it is the case. 
+check=`sudo docker ps -a | grep simtools`
+if [ ! -z "$check" ]; then
+	sudo docker stop simtools && sudo docker rm simtools
+fi
+sudo docker rmi simtools &> /dev/null
+
+# Setting the buildx as default builder for Dockerfiles
+echo "Setting the buildx as default builder..."
+docker buildx install
 
 # Building the simtools image
-sudo docker build -t simtools .
+echo "Building the docker image..."
+sudo docker build -t simtools --no-cache .
 
 echo "Copying required files to the system..."
 
@@ -51,12 +61,6 @@ fi
 # Copy the binaries (simctl wrapper) to the system and setting the right permissions
 sudo cp -f "$files_path/bin/simctl" "$bin_path/simctl" &> /dev/null
 sudo chmod +x "$bin_path/simctl" &> /dev/null
-
-# Check if there is a container already running and remove it if it is the case. 
-check=`sudo docker ps -a | grep simtools`
-if [ ! -z "$check" ]; then
-	sudo docker stop simtools && sudo docker rm simtools
-fi
 
 # Create and run the container as a daemon. 
 # To run simctl commands type: simctl [options]
