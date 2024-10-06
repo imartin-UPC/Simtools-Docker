@@ -14,18 +14,18 @@ for file in $wrong_files; do
 done
 
 # Check if debian5.fs file has been unpacked
-check=`ls "$files_path/www/" | grep -x debian5.fs`
+check=`ls "$files_path/simtools/" | grep -x simtools.tar.xz`
 if [ -z "$check" ]; then
-    echo "Unpacking the image file..."
+    echo "Unpacking the simtools image file..."
     
-    check=`ls "$files_path/www/" | grep -x image.tar.xz`
+    check=`ls "$files_path/simtools/" | grep -x simtools.tar.xz`
     if [ -z "$check" ]; then
         # Join the image files
-        find "$files_path/www" -name image.parta* -print0 | sort -z | xargs -0 -I file cat file > "$files_path/www/image.tar.xz"
+        find "$files_path/simtools" -name "simtools.a*" -print0 | sort -z | xargs -0 -I file cat file > "$files_path/simtools/simtools.tar.xz"
     fi
 
     # Unpack the image file
-    tar xJf "$files_path/www/image.tar.xz" -C "$files_path/www"
+    #tar xJf "$files_path/www/image.tar.xz" -C "$files_path/www"
 fi
 
 check=`systemctl status docker | grep running`
