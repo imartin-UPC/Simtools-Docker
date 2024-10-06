@@ -4,6 +4,7 @@ guides_path="./install_guides"
 files_path="./files"
 bin_path="/usr/local/bin"
 current_path=`pwd`
+version=1.3
 
 # Check files 
 echo "Checking the files integrity..."
@@ -47,7 +48,7 @@ docker buildx install
 
 # Building the simtools image
 echo "Building the docker image..."
-sudo docker build -t simtools --no-cache .
+sudo docker build -t simtools:$version --no-cache .
 
 echo "Copying required files to the system..."
 
