@@ -1,7 +1,7 @@
 FROM debian:12
 
 LABEL maintainer="Israel Martín Escalona"
-LABEL version="1.2"
+LABEL version="1.3"
 LABEL description="This dockerfile builds a container to run simtools"
 
 RUN apt-get update && apt-get install sudo ssh kmod openssh-client procps wget gnupg apt-transport-https genisoimage \
@@ -20,9 +20,6 @@ RUN adduser --disabled-password --gecos '' vnuml && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
     gpasswd -a tcgi vnuml && \
     gpasswd -a tcgi sudo
-
-COPY files/www/www-new.vnuml /usr/share/vnuml/scenarios/
-RUN chmod 644 /usr/share/vnuml/scenarios/www-new.vnuml
 
 COPY files/simtools/simtools.tar.xz /simtools.tar.xz
 RUN tar xJf /simtools.tar.xz && rm /simtools.tar.xz

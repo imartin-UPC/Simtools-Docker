@@ -7,12 +7,12 @@ current_path=`pwd`
 version=1.3
 
 # Check files 
-echo "Checking the files integrity..."
+# echo "Checking the files integrity..."
 
-wrong_files=`cd "$files_path/www" &>/dev/null; md5sum -c checksums.md5 2>/dev/null | grep FAILED | cut -d ':' -f 1; cd "$current_path" &>/dev/null`
-for file in $wrong_files; do
-    rm -f "$files_path/www/$file" &>/dev/null
-done
+# wrong_files=`cd "$files_path/www" &>/dev/null; md5sum -c checksums.md5 2>/dev/null | grep FAILED | cut -d ':' -f 1; cd "$current_path" &>/dev/null`
+# for file in $wrong_files; do
+#     rm -f "$files_path/www/$file" &>/dev/null
+# done
 
 # Check if debian5.fs file has been unpacked
 check=`ls "$files_path/simtools/" | grep -x simtools.tar.xz`
@@ -65,7 +65,7 @@ sudo chmod +x "$bin_path/simctl" &> /dev/null
 
 # Create and run the container as a daemon. 
 # To run simctl commands type: simctl [options]
-sudo docker run -d -it --device /dev/net/tun --name=simtools --cap-add=NET_ADMIN --network=host --ipc=host simtools /bin/bash
+sudo docker run -d -it --device /dev/net/tun --name=simtools --cap-add=NET_ADMIN --network=host --ipc=host simtools:$version /bin/bash
 
 # Copy the command simtools-captap so run several wiresharks in the host at once. 
 sudo docker cp simtools:/usr/local/bin/simtools-captap "$bin_path/simtools-captap"
