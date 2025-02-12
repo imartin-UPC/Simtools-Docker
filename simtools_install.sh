@@ -2,7 +2,7 @@ guides_path="./install_guides"
 files_path="./files"
 bin_path="/usr/local/bin"
 current_path=`pwd`
-version=1.3
+version=1.3.1
 
 # Create and run the container as a daemon.
 # To run simctl commands type: simctl [options]
