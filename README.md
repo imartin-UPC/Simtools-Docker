@@ -8,7 +8,7 @@ Sudo is used by the installer to grant administrator privileges. Accordingly, yo
 
 ## Install
 To install the container just run the commands below.
-- \# chmod u+x simtools_install
-- ./simtools_install
+- \# chmod u+x simtools_install.sh
+- ./simtools_install.sh
 
 Once the docker image has been installed and it's running, open a console and use the *simctl* command to manage the simtools scenarios. 
